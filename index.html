@@ -5,17 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pacific Islands Digital Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
       background-color: #f3f8fb;
+      padding: 20px;
     }
     h1 {
       text-align: center;
       color: #2e5984;
     }
-    .chart-container {
+    .chart-container, .map-container {
       width: 90%;
       max-width: 900px;
       margin: 40px auto;
@@ -24,40 +26,85 @@
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
+    #map {
+      height: 600px;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
-  <h1>🌏 Pacific Islands Digital Development Dashboard</h1>
+  <h1>🌴 Pacific Islands Digital Development Dashboard</h1>
 
-  <div class="chart-container">
-    <h2>📶 4G Coverage by Country (%)</h2>
-    <canvas id="coverageChart"></canvas>
+  <!-- 4G Coverage Map -->
+  <div class="map-container">
+    <h2>📶 4G Mobile Network Coverage</h2>
+    <div id="map"></div>
   </div>
 
+  <!-- Broadband Subscriptions Chart -->
   <div class="chart-container">
-    <h2>💻 Broadband Subscriptions per 100 People</h2>
+    <h2>💻 Fixed Broadband Subscriptions per 100 People</h2>
     <canvas id="broadbandChart"></canvas>
   </div>
 
+  <!-- Internet Usage Chart -->
   <div class="chart-container">
-    <h2>🌐 Internet Usage (% of Population)</h2>
+    <h2>🌐 Internet Usage (% of Individuals)</h2>
     <canvas id="internetChart"></canvas>
   </div>
 
   <script>
-    const countries = ["Fiji", "New Caledonia", "PNG", "Solomon Islands", "Vanuatu", "Kiribati", "Marshall Islands", "FSM", "Nauru", "Palau", "Cook Islands", "French Polynesia", "Niue", "Samoa", "Tonga", "Tuvalu"];
+    // Map setup
+    const map = L.map('map').setView([-13.5, 167], 4);
 
-    const coverageData = [80, 79.5, 50, 25, 70, 64, 65, 0, 30, 0, 55, 90, 100, 99, 96, 25];
-    const broadbandData = [2.53, 19.37, 0.21, 0.11, 1.23, 0.04, 2.35, 5.82, 9.96, 7.33, 21.05, 35.55, null, 0.88, 8.17, 4.52];
-    const internetData = [68.9, 82, 11.2, 11.9, 25.7, 14.6, 38.7, 35.3, 57, 34, 54, 88.5, 71.1, 33.6, 41.2, 49.3];
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-    const colors = ['#2e86de', '#45aaf2', '#a55eea', '#f0932b', '#26de81', '#eb3b5a', '#fd9644', '#20bf6b', '#8854d0', '#4b6584', '#2bcbba', '#fa8231', '#fc5c65', '#fd79a8', '#00b894', '#e84393'];
+    const countries = [
+      { name: "Fiji", lat: -17.7134, lon: 178.0650, coverage: 80 },
+      { name: "New Caledonia", lat: -20.9043, lon: 165.6180, coverage: 79.5 },
+      { name: "PNG", lat: -6.314993, lon: 143.9555, coverage: 50 },
+      { name: "Solomon Islands", lat: -9.6457, lon: 160.1562, coverage: 25 },
+      { name: "Vanuatu", lat: -15.3767, lon: 166.9592, coverage: 70 },
+      { name: "Kiribati", lat: 1.8709, lon: -157.3630, coverage: 64 },
+      { name: "Marshall Islands", lat: 7.1315, lon: 171.1845, coverage: 65 },
+      { name: "FSM", lat: 6.8876, lon: 158.2150, coverage: 0 },
+      { name: "Nauru", lat: -0.5228, lon: 166.9315, coverage: 30 },
+      { name: "Cook Islands", lat: -21.2367, lon: -159.7777, coverage: 55 },
+      { name: "French Polynesia", lat: -17.6797, lon: -149.4068, coverage: 90 },
+      { name: "Niue", lat: -19.0544, lon: -169.8672, coverage: 100 },
+      { name: "Samoa", lat: -13.7590, lon: -172.1046, coverage: 99 },
+      { name: "Tonga", lat: -21.1789, lon: -175.1982, coverage: 96 },
+      { name: "Tuvalu", lat: -7.1095, lon: 177.6493, coverage: 25 }
+    ];
+
+    countries.forEach(c => {
+      const color = c.coverage >= 90 ? "green" :
+                    c.coverage >= 60 ? "orange" :
+                    c.coverage > 0 ? "red" : "gray";
+
+      L.circleMarker([c.lat, c.lon], {
+        radius: 10,
+        color: color,
+        fillColor: color,
+        fillOpacity: 0.6
+      }).addTo(map)
+        .bindPopup(`<strong>${c.name}</strong><br>4G Coverage: ${c.coverage}%`);
+    });
+
+    // Charts
+    const names = countries.map(c => c.name);
+    const broadbandData = [2.53, 19.37, 0.21, 0.11, 1.23, 0.04, 2.35, 5.82, 9.96, 21.05, 35.55, null, 0.88, 8.17, 4.52];
+    const internetData = [68.9, 82, 11.2, 11.9, 25.7, 14.6, 38.7, 35.3, 57, 54, 88.5, 71.1, 33.6, 41.2, 49.3];
+
+    const colors = names.map((_, i) => `hsl(${i * 25}, 65%, 60%)`);
 
     const createChart = (id, label, data) => {
       new Chart(document.getElementById(id), {
         type: 'bar',
         data: {
-          labels: countries,
+          labels: names.slice(0, data.length),
           datasets: [{
             label,
             data,
@@ -66,6 +113,9 @@
         },
         options: {
           responsive: true,
+          plugins: {
+            legend: { display: false }
+          },
           scales: {
             y: {
               beginAtZero: true
@@ -75,8 +125,7 @@
       });
     };
 
-    createChart("coverageChart", "% 4G Coverage", coverageData);
-    createChart("broadbandChart", "Fixed Broadband Subscriptions", broadbandData);
+    createChart("broadbandChart", "Broadband Subscriptions", broadbandData);
     createChart("internetChart", "Internet Usage (%)", internetData);
   </script>
 </body>
