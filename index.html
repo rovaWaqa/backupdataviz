@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Pacific Digital Indicators Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f9ff;
+    }
+    h2 {
+      text-align: center;
+    }
+    canvas {
+      margin: 40px auto;
+      display: block;
+      max-width: 800px;
+    }
+    .chart-container {
+      width: 90%;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <h2>Pacific Island Digital Development Indicators</h2>
+  <div class="chart-container">
+    <canvas id="broadbandChart"></canvas>
+    <canvas id="internetUsageChart"></canvas>
+    <canvas id="mobileCoverageChart"></canvas>
+  </div>
+
+  <script>
+    const data = [
+  {
+    "Country": "Fiji",
+    "Region": "Melanesia",
+    "Fixed_Broadband_2023": 2.53,
+    "Internet_Usage_2017": 68.9,
+    "Mobile_4G_Coverage_2020": 80.0,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": 0.62,
+    "Online_Service_Index": 0.48
+  },
+  {
+    "Country": "New Caledonia",
+    "Region": "Melanesia",
+    "Fixed_Broadband_2023": 19.37,
+    "Internet_Usage_2017": 82.0,
+    "Mobile_4G_Coverage_2020": 79.5,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": NaN,
+    "Online_Service_Index": NaN
+  },
+  {
+    "Country": "Papua New Guinea",
+    "Region": "Melanesia",
+    "Fixed_Broadband_2023": 0.21,
+    "Internet_Usage_2017": 11.2,
+    "Mobile_4G_Coverage_2020": 50.0,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": 0.32,
+    "Online_Service_Index": 0.33
+  },
+  {
+    "Country": "Solomon Islands",
+    "Region": "Melanesia",
+    "Fixed_Broadband_2023": 0.11,
+    "Internet_Usage_2017": 11.9,
+    "Mobile_4G_Coverage_2020": 25.0,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": 0.35,
+    "Online_Service_Index": 0.37
+  },
+  {
+    "Country": "Vanuatu",
+    "Region": "Melanesia",
+    "Fixed_Broadband_2023": 1.23,
+    "Internet_Usage_2017": 25.7,
+    "Mobile_4G_Coverage_2020": 70.0,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": 0.4,
+    "Online_Service_Index": 0.44
+  },
+  {
+    "Country": "Kiribati",
+    "Region": "Micronesia",
+    "Fixed_Broadband_2023": 0.04,
+    "Internet_Usage_2017": 14.6,
+    "Mobile_4G_Coverage_2020": 64.0,
+    "Cyber_Security_Index": 30.0,
+    "Cybersecurity_Policy": 60.0,
+    "E_Gov_Index": 0.43,
+    "Online_Service_Index": 0.37
+  },
+  {
+    "Country": "Marshall Islands",
+    "Region": "Micronesia",
+    "Fixed_Broadband_2023": 2.35,
+    "Internet_Usage_2017": 38.7,
+    "Mobile_4G_Coverage_2020": 65.0,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": 0.37,
+    "Online_Service_Index": 0.3
+  },
+  {
+    "Country": "Micronesia (Federated States of)",
+    "Region": "Micronesia",
+    "Fixed_Broadband_2023": 5.82,
+    "Internet_Usage_2017": 35.3,
+    "Mobile_4G_Coverage_2020": 0.0,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": 0.36,
+    "Online_Service_Index": 0.27
+  },
+  {
+    "Country": "Nauru",
+    "Region": "Micronesia",
+    "Fixed_Broadband_2023": 9.96,
+    "Internet_Usage_2017": 57.0,
+    "Mobile_4G_Coverage_2020": 30.0,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": 0.45,
+    "Online_Service_Index": 0.3
+  },
+  {
+    "Country": "Palau",
+    "Region": "Micronesia",
+    "Fixed_Broadband_2023": 7.33,
+    "Internet_Usage_2017": 34.0,
+    "Mobile_4G_Coverage_2020": NaN,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": 0.5,
+    "Online_Service_Index": 0.24
+  },
+  {
+    "Country": "Cook Islands",
+    "Region": "Polynesia",
+    "Fixed_Broadband_2023": 21.05,
+    "Internet_Usage_2017": 54.0,
+    "Mobile_4G_Coverage_2020": 55.0,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": NaN,
+    "Online_Service_Index": NaN
+  },
+  {
+    "Country": "French Polynesia",
+    "Region": "Polynesia",
+    "Fixed_Broadband_2023": 35.55,
+    "Internet_Usage_2017": 88.5,
+    "Mobile_4G_Coverage_2020": 90.0,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": NaN,
+    "Online_Service_Index": NaN
+  },
+  {
+    "Country": "Samoa",
+    "Region": "Polynesia",
+    "Fixed_Broadband_2023": 0.88,
+    "Internet_Usage_2017": 33.6,
+    "Mobile_4G_Coverage_2020": 99.0,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": 0.42,
+    "Online_Service_Index": 0.36
+  },
+  {
+    "Country": "Tonga",
+    "Region": "Polynesia",
+    "Fixed_Broadband_2023": 8.17,
+    "Internet_Usage_2017": 41.2,
+    "Mobile_4G_Coverage_2020": 96.0,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": 0.52,
+    "Online_Service_Index": 0.33
+  },
+  {
+    "Country": "Tuvalu",
+    "Region": "Polynesia",
+    "Fixed_Broadband_2023": 4.52,
+    "Internet_Usage_2017": 49.3,
+    "Mobile_4G_Coverage_2020": 25.0,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": 0.38,
+    "Online_Service_Index": 0.23
+  },
+  {
+    "Country": "Niue",
+    "Region": "Polynesia",
+    "Fixed_Broadband_2023": NaN,
+    "Internet_Usage_2017": 71.1,
+    "Mobile_4G_Coverage_2020": 100.0,
+    "Cyber_Security_Index": NaN,
+    "Cybersecurity_Policy": NaN,
+    "E_Gov_Index": NaN,
+    "Online_Service_Index": NaN
+  }
+];
+
+    const countries = data.map(d => d.Country);
+    const broadband = data.map(d => d.Fixed_Broadband_2023);
+    const internet = data.map(d => d.Internet_Usage_2017);
+    const mobile = data.map(d => d.Mobile_4G_Coverage_2020);
+
+    const createChart = (id, label, values, color) => {
+      new Chart(document.getElementById(id), {
+        type: 'bar',
+        data: {
+          labels: countries,
+          datasets: [{
+            label: label,
+            data: values,
+            backgroundColor: color
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    };
+
+    createChart('broadbandChart', 'Fixed Broadband per 100 (2023)', broadband, 'rgba(54, 162, 235, 0.7)');
+    createChart('internetUsageChart', 'Internet Usage % (2017)', internet, 'rgba(75, 192, 192, 0.7)');
+    createChart('mobileCoverageChart', '4G Mobile Coverage % (2020)', mobile, 'rgba(255, 206, 86, 0.7)');
+  </script>
+</body>
+</html>
