@@ -1,132 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pacific Islands Digital Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <meta charset="UTF-8">
+  <title>Pacific Digital Connectivity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f3f8fb;
-      padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9fcfe;
+      color: #333;
     }
-    h1 {
+    header {
+      background: linear-gradient(45deg, #0078D7, #00A4EF);
+      color: white;
+      padding: 40px 20px;
       text-align: center;
-      color: #2e5984;
     }
-    .chart-container, .map-container {
-      width: 90%;
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    header p {
+      font-size: 1.2em;
+    }
+    section {
+      padding: 40px 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+    h2 {
+      color: #0063b1;
+      margin-top: 0;
+    }
+    canvas {
+      width: 100% !important;
       max-width: 900px;
-      margin: 40px auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      height: auto !important;
     }
-    #map {
-      height: 600px;
-      width: 100%;
+    footer {
+      background: #eceff1;
+      padding: 20px;
+      text-align: center;
+      font-size: 0.9em;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <h1>🌴 Pacific Islands Digital Development Dashboard</h1>
 
-  <!-- 4G Coverage Map -->
-  <div class="map-container">
-    <h2>📶 4G Mobile Network Coverage</h2>
-    <div id="map"></div>
-  </div>
+<header>
+  <h1>🌐 Pacific Broadband Dashboard</h1>
+  <p>A snapshot of fixed broadband access across Melanesia, Micronesia & Polynesia</p>
+</header>
 
-  <!-- Broadband Subscriptions Chart -->
-  <div class="chart-container">
-    <h2>💻 Fixed Broadband Subscriptions per 100 People</h2>
-    <canvas id="broadbandChart"></canvas>
-  </div>
+<section>
+  <h2>📍 Access Map – Circle Size by Subscriptions</h2>
+  <canvas id="mapChart"></canvas>
+</section>
 
-  <!-- Internet Usage Chart -->
-  <div class="chart-container">
-    <h2>🌐 Internet Usage (% of Individuals)</h2>
-    <canvas id="internetChart"></canvas>
-  </div>
+<section>
+  <h2>📈 Scatter Plot – Broadband by Region</h2>
+  <canvas id="scatterChart"></canvas>
+</section>
 
-  <script>
-    // Map setup
-    const map = L.map('map').setView([-13.5, 167], 4);
+<footer>
+  Built with ❤️ for Pacific data storytelling. Powered by HTML, Chart.js & your vision, Rova.
+</footer>
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const mapCtx = document.getElementById('mapChart').getContext('2d');
+  const scatterCtx = document.getElementById('scatterChart').getContext('2d');
 
-    const countries = [
-      { name: "Fiji", lat: -17.7134, lon: 178.0650, coverage: 80 },
-      { name: "New Caledonia", lat: -20.9043, lon: 165.6180, coverage: 79.5 },
-      { name: "PNG", lat: -6.314993, lon: 143.9555, coverage: 50 },
-      { name: "Solomon Islands", lat: -9.6457, lon: 160.1562, coverage: 25 },
-      { name: "Vanuatu", lat: -15.3767, lon: 166.9592, coverage: 70 },
-      { name: "Kiribati", lat: 1.8709, lon: -157.3630, coverage: 64 },
-      { name: "Marshall Islands", lat: 7.1315, lon: 171.1845, coverage: 65 },
-      { name: "FSM", lat: 6.8876, lon: 158.2150, coverage: 0 },
-      { name: "Nauru", lat: -0.5228, lon: 166.9315, coverage: 30 },
-      { name: "Cook Islands", lat: -21.2367, lon: -159.7777, coverage: 55 },
-      { name: "French Polynesia", lat: -17.6797, lon: -149.4068, coverage: 90 },
-      { name: "Niue", lat: -19.0544, lon: -169.8672, coverage: 100 },
-      { name: "Samoa", lat: -13.7590, lon: -172.1046, coverage: 99 },
-      { name: "Tonga", lat: -21.1789, lon: -175.1982, coverage: 96 },
-      { name: "Tuvalu", lat: -7.1095, lon: 177.6493, coverage: 25 }
-    ];
+  // Simulated coordinates (not geo-accurate, just for visualization)
+  const mapData = {
+    datasets: [{
+      label: 'Broadband Subscriptions',
+      data: [
+        { x: 30, y: 80, r: 36, label: 'French Polynesia' },
+        { x: 60, y: 60, r: 21, label: 'Cook Islands' },
+        { x: 80, y: 40, r: 10, label: 'Nauru' },
+        { x: 40, y: 30, r: 8, label: 'Tonga' },
+        { x: 65, y: 45, r: 2.5, label: 'Fiji' },
+        { x: 20, y: 20, r: 0.2, label: 'Papua New Guinea' },
+        { x: 10, y: 10, r: 0.04, label: 'Kiribati' }
+      ],
+      backgroundColor: '#00a2ff'
+    }]
+  };
 
-    countries.forEach(c => {
-      const color = c.coverage >= 90 ? "green" :
-                    c.coverage >= 60 ? "orange" :
-                    c.coverage > 0 ? "red" : "gray";
-
-      L.circleMarker([c.lat, c.lon], {
-        radius: 10,
-        color: color,
-        fillColor: color,
-        fillOpacity: 0.6
-      }).addTo(map)
-        .bindPopup(`<strong>${c.name}</strong><br>4G Coverage: ${c.coverage}%`);
-    });
-
-    // Charts
-    const names = countries.map(c => c.name);
-    const broadbandData = [2.53, 19.37, 0.21, 0.11, 1.23, 0.04, 2.35, 5.82, 9.96, 21.05, 35.55, null, 0.88, 8.17, 4.52];
-    const internetData = [68.9, 82, 11.2, 11.9, 25.7, 14.6, 38.7, 35.3, 57, 54, 88.5, 71.1, 33.6, 41.2, 49.3];
-
-    const colors = names.map((_, i) => `hsl(${i * 25}, 65%, 60%)`);
-
-    const createChart = (id, label, data) => {
-      new Chart(document.getElementById(id), {
-        type: 'bar',
-        data: {
-          labels: names.slice(0, data.length),
-          datasets: [{
-            label,
-            data,
-            backgroundColor: colors,
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            y: {
-              beginAtZero: true
+  new Chart(mapCtx, {
+    type: 'bubble',
+    data: mapData,
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const d = context.raw;
+              return `${d.label}: ${d.r} per 100 people`;
             }
           }
         }
-      });
-    };
+      },
+      scales: {
+        x: {
+          display: false
+        },
+        y: {
+          display: false
+        }
+      }
+    }
+  });
 
-    createChart("broadbandChart", "Broadband Subscriptions", broadbandData);
-    createChart("internetChart", "Internet Usage (%)", internetData);
-  </script>
+  const scatterData = {
+    datasets: [
+      {
+        label: 'Melanesia',
+        data: [
+          { x: 2.53, y: 1, label: 'Fiji' },
+          { x: 0.21, y: 1, label: 'Papua New Guinea' },
+          { x: 1.23, y: 1, label: 'Vanuatu' },
+        ],
+        backgroundColor: '#0078D7'
+      },
+      {
+        label: 'Micronesia',
+        data: [
+          { x: 9.96, y: 2, label: 'Nauru' },
+          { x: 5.82, y: 2, label: 'FSM' },
+          { x: 0.04, y: 2, label: 'Kiribati' }
+        ],
+        backgroundColor: '#00B294'
+      },
+      {
+        label: 'Polynesia',
+        data: [
+          { x: 35.55, y: 3, label: 'French Polynesia' },
+          { x: 21.05, y: 3, label: 'Cook Islands' },
+          { x: 8.17, y: 3, label: 'Tonga' }
+        ],
+        backgroundColor: '#FF8C00'
+      }
+    ]
+  };
+
+  new Chart(scatterCtx, {
+    type: 'scatter',
+    data: scatterData,
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.raw.label}: ${context.raw.x} subscriptions per 100`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Subscriptions per 100 people'
+          },
+          min: 0,
+          max: 40
+        },
+        y: {
+          title: {
+            display: false
+          },
+          ticks: {
+            callback: function(value) {
+              return ['Melanesia', 'Micronesia', 'Polynesia'][value - 1] || '';
+            }
+          },
+          min: 0.5,
+          max: 3.5
+        }
+      }
+    }
+  });
+</script>
+
 </body>
 </html>
